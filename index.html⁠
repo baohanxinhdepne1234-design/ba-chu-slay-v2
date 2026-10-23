@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BÀ CHỦ SLAY 💅</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#ffe4f1;color:#70234d;font-family:Arial,sans-serif;text-align:center}
+header{background:#ff4fa3;color:white;padding:18px}
+h1{margin:4px;font-size:30px}
+.stats{display:flex;justify-content:space-around;gap:5px;padding:12px;flex-wrap:wrap}
+.stat{background:white;border-radius:15px;padding:10px;font-weight:bold}
+#game{position:relative;overflow:hidden;margin:5px auto;width:94%;max-width:650px;height:360px;border:4px solid #ff70b5;border-radius:20px;background:linear-gradient(#b8edff 0 65%,#8fdf87 65%)}
+.shop{position:absolute;bottom:35%;left:4%;font-size:65px}
+.shelf{position:absolute;bottom:38%;left:0;width:100%;height:9px;background:#a65b36}
+.item{position:absolute;bottom:41%;font-size:27px}
+.i1{left:12%}.i2{left:25%}.i3{left:38%}
+.person{position:absolute;bottom:8%;font-size:47px;transition:left .09s linear}
+#boss{left:8%}
+#thief{left:73%}
+#message{font-size:17px;font-weight:bold;padding:10px;min-height:48px}
+.controls{display:flex;justify-content:center;gap:12px;padding:8px}
+button{border:0;border-radius:15px;background:#ff3999;color:white;font-size:18px;font-weight:bold;padding:14px 20px;box-shadow:0 4px #bd2874}
+button:active{transform:translateY(3px);box-shadow:none}
+#start{background:#8b45e8}
+.small{font-size:13px;padding:10px}
+</style>
+</head>
+<body>
+<header>
+<h1>💅 BÀ CHỦ SLAY 💅</h1>
+<p>ĐỘI VƯƠNG MIỆN LÊN, BẮT TRỘM THÔI!</p>
+</header>
+
+<div class="stats">
+<div class="stat">💰 Tiền: <span id="money">1000</span>đ</div>
+<div class="stat">💎 Đồ bị trộm: <span id="stolen">0</span>/3</div>
+<div class="stat">🏆 Thắng: <span id="wins">0</span></div>
+</div>
+
+<div id="game">
+<div class="shop">🏬</div>
+<div class="shelf"></div>
+<div class="item i1" id="item1">💎</div>
+<div class="item i2" id="item2">👑</div>
+<div class="item i3" id="item3">👜</div>
+<div id="boss" class="person">💅</div>
+<div id="thief" class="person">🥷</div>
+</div>
+
+<div id="message">Bấm CHƠI NGAY để bảo vệ cửa hàng nha bà!</div>
+
+<div class="controls">
+<button id="start" onclick="startGame()">🎮 CHƠI NGAY</button>
+</div>
+<div class="controls">
+<button id="left" ontouchstart="moveBoss(-1)" onmousedown="moveBoss(-1)">⬅️</button>
+<button id="right" ontouchstart="moveBoss(1)" onmousedown="moveBoss(1)">➡️</button>
+<button onclick="catchThief()">💅 BẮT TRỘM!</button>
+</div>
+<p>Hướng dẫn: Di chuyển bà chủ tới gần tên trộm rồi bấm BẮT TRỘM!</p>
+<script>
+let money=1000,wins=0,stolen=0;
+let boss=8,thief=73,active=false,round=0,timer=null;
+const $=id=>document.getElementById(id);
+function update(){
+$("money").textContent=money;
+$("wins").textContent=wins;
+$("stolen").textContent=stolen;
+$("boss").style.left=boss+"%";
+$("thief").style.left=thief+"%";
+}
+function startGame(){
+clearInterval(timer);
+if(money<=0)money=500;
+boss=8;thief=73;stolen=0;round=0;active=true;
+["item1","item2","item3"].forEach(id=>$(id).style.display="block");
+$("message").textContent="TRỘM ĐANG CUỖM ĐỒ! ĐUỔI THEO NÓ BÀ ƠI!";
+update();
+timer=setInterval(()=>{
+if(!active)return;
+round++;
+if(round%3===0&&stolen<3){
+stolen++;
+$("item"+stolen).style.display="none";
+$("message").textContent="Á Á! HẮN LẤY MẤT "+stolen+" MÓN RỒI! 💎";
+}
+thief-=1.1;
+if(thief<=2){
+thief=2;active=false;clearInterval(timer);
+money=Math.max(0,money-300);
+$("message").textContent="😭 TRỘM CHẠY THOÁT! BÀ MẤT 300Đ!";
+$("start").textContent="🔄 CHƠI LẠI";
+}
+update();
+},400);
+$("start").textContent="🔄 CHƠI LẠI";
+}
+function moveBoss(dir){
+if(!active)return;
+boss=Math.max(0,Math.min(90,boss+dir*5));
+update();
+}
+function catchThief(){
+if(!active){$("message").textContent="Bấm CHƠI NGAY trước nha bà!";return}
+if(Math.abs(boss-thief)<17){
+active=false;clearInterval(timer);
+wins++;money+=500;
+$("message").textContent="👑 SLAY QUÁ BÀ ƠI! BẮT ĐƯỢC TRỘM, THẮNG +500Đ!";
+$("start").textContent="🎮 CHƠI VÁN MỚI";
+}else{
+$("message").textContent="😤 CHƯA TỚI GẦN! DI CHUYỂN SÁT HẮN RỒI BẮT!";
+}
+update();
+}
+document.addEventListener("keydown",e=>{
+if(e.key==="ArrowLeft")moveBoss(-1);
+if(e.key==="ArrowRight")moveBoss(1);
+if(e.key===" "||e.key==="Enter")catchThief();
+});
+update();
+</script>
+</body>
+</html>
